@@ -183,7 +183,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
                                     textAlign: TextAlign.center,
                                     style:  GoogleFonts.nunito(
                                       fontSize: 24,
-                                      fontWeight: FontWeight.w400,
+                                      fontWeight: FontWeight.w600,
                                       color: Colors.white,
                                     ),
                                   ),
