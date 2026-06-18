@@ -49,6 +49,9 @@ flutter:
     - assets/images/drvrio.png
     - assets/images/drvrpos_tablogo.png
     - assets/images/drvrpos_tabflg.png
+    - assets/images/info_tea.png
+    - assets/images/print_tea_data.png
+    - assets/images/andr_cpytp.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

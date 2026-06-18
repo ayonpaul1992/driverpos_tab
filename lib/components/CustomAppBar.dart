@@ -38,8 +38,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
   bool isProfileMenuOpen = false;
   bool isClockedIn = false;
   Map<int, bool> employeeClockStatus = {};
-  final TextEditingController employeeController =
-  TextEditingController();
+  final TextEditingController employeeController = TextEditingController();
   final TextEditingController pinController = TextEditingController();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
@@ -122,10 +121,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
     );
   }
 
-  void showTopMessage(
-      BuildContext context,
-      String message,
-      ) {
+  void showTopMessage(BuildContext context, String message) {
     final overlay = Overlay.of(context);
 
     late OverlayEntry overlayEntry;
@@ -139,10 +135,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
           color: Colors.transparent,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 300),
-            padding: const EdgeInsets.symmetric(
-              horizontal: 18,
-              vertical: 14,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
             decoration: BoxDecoration(
               color: const Color(0xFF22C55E),
               borderRadius: BorderRadius.circular(12),
@@ -156,10 +149,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
             ),
             child: Row(
               children: [
-                const Icon(
-                  Icons.check_circle,
-                  color: Colors.white,
-                ),
+                const Icon(Icons.check_circle, color: Colors.white),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -212,7 +202,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
   Widget build(BuildContext context) {
     return AppBar(
       backgroundColor: Colors.white,
-      elevation: 1,
+      elevation: 0,
       shadowColor: Colors.black12,
       automaticallyImplyLeading: false,
       leadingWidth: 0,
@@ -846,6 +836,8 @@ class _CustomAppBarState extends State<CustomAppBar> {
   }
 
   void _showTimeClockPopup(BuildContext context) {
+    selectedEmployee = null;
+    showTimeClockActions = false;
     final employeeController = TextEditingController();
     final pinController = TextEditingController();
 
@@ -939,7 +931,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
 
                           RawAutocomplete<Employee>(
                             displayStringForOption: (employee) =>
-                            employee.employeeName,
+                                employee.employeeName,
 
                             optionsBuilder: (TextEditingValue value) {
                               if (value.text.isEmpty) {
@@ -947,7 +939,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
                               }
 
                               return employees.where(
-                                    (employee) => employee.employeeName
+                                (employee) => employee.employeeName
                                     .toLowerCase()
                                     .contains(value.text.toLowerCase()),
                               );
@@ -958,63 +950,60 @@ class _CustomAppBarState extends State<CustomAppBar> {
                                 selectedEmployee = employee;
                                 showTimeClockActions = true;
                               });
-
-                              print(employee.employeeId);
-                              print(employee.employeeName);
                             },
 
-                            fieldViewBuilder: (
-                                context,
-                                controller,
-                                focusNode,
-                                onFieldSubmitted,
+                            fieldViewBuilder:
+                                (
+                                  context,
+                                  controller,
+                                  focusNode,
+                                  onFieldSubmitted,
                                 ) {
-                              return TextFormField(
-                                controller: controller,
-                                focusNode: focusNode,
+                                  return TextFormField(
+                                    controller: controller,
+                                    focusNode: focusNode,
 
-                                decoration: InputDecoration(
-                                  hintText: "Select Employee",
+                                    decoration: InputDecoration(
+                                      hintText: "Select Employee",
 
-                                  prefixIcon: const Icon(Icons.search),
+                                      prefixIcon: const Icon(Icons.search),
 
-                                  filled: true,
-                                  fillColor: Colors.white,
+                                      filled: true,
+                                      fillColor: Colors.white,
 
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: const BorderSide(
-                                      color: Color(0xFFD0D5DD),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide: const BorderSide(
+                                          color: Color(0xFFD0D5DD),
+                                        ),
+                                      ),
+
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide: const BorderSide(
+                                          color: Color(0xFF9ECF9A),
+                                        ),
+                                      ),
+
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                            horizontal: 16,
+                                            vertical: 14,
+                                          ),
                                     ),
-                                  ),
+                                  );
+                                },
 
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: const BorderSide(
-                                      color: Color(0xFF9ECF9A),
-                                    ),
-                                  ),
-
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 14,
-                                  ),
-                                ),
-                              );
-                            },
-
-                            optionsViewBuilder: (
-                                context,
-                                onSelected,
-                                options,
-                                ) {
+                            optionsViewBuilder: (context, onSelected, options) {
                               return Align(
                                 alignment: Alignment.topLeft,
                                 child: Material(
                                   elevation: 4,
                                   borderRadius: BorderRadius.circular(10),
                                   child: Container(
-                                    width: MediaQuery.of(context).size.width * 0.75,
+                                    width:
+                                        MediaQuery.of(context).size.width *
+                                        0.75,
 
                                     constraints: const BoxConstraints(
                                       maxHeight: 180,
@@ -1035,11 +1024,12 @@ class _CustomAppBarState extends State<CustomAppBar> {
                                       itemCount: options.length,
 
                                       separatorBuilder: (_, __) =>
-                                      const Divider(height: 1),
+                                          const Divider(height: 1),
 
                                       itemBuilder: (context, index) {
-                                        final employee =
-                                        options.elementAt(index);
+                                        final employee = options.elementAt(
+                                          index,
+                                        );
 
                                         return InkWell(
                                           onTap: () {
@@ -1138,75 +1128,69 @@ class _CustomAppBarState extends State<CustomAppBar> {
 
                           focusedErrorBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
-                            borderSide: const BorderSide(
-                              color: Colors.red,
-                            ),
+                            borderSide: const BorderSide(color: Colors.red),
                           ),
                         ),
                       ),
 
-                      if (showTimeClockActions) ...[
+                      if (showTimeClockActions && selectedEmployee != null) ...[
                         const SizedBox(height: 25),
 
-                        Center(
-                          child: SizedBox(
-                            width: 120,
-                            height: 42,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                // PIN Validation
-                                if (pinController.text.trim().length < 4) {
-                                  setDialogState(() {
-                                    pinError = "PIN must be at least 4 characters";
-                                  });
-                                  return;
-                                }
+                        Builder(
+                          builder: (context) {
+                            final empId = selectedEmployee!.employeeId;
+                            final isClockedIn = employeeClockStatus[empId] ?? false;
 
-                                setDialogState(() {
-                                  pinError = null;
-                                });
+                            return Center(
+                              child: SizedBox(
+                                width: 120,
+                                height: 42,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    if (pinController.text.trim().length < 4) {
+                                      setDialogState(() {
+                                        pinError = "PIN must be at least 4 characters";
+                                      });
+                                      return;
+                                    }
 
-                                print(selectedEmployee?.employeeId);
-                                print(pinController.text);
+                                    setDialogState(() {
+                                      pinError = null;
+                                    });
 
-                                if (!isClockedIn) {
-                                  setState(() {
-                                    isClockedIn = true;
-                                  });
+                                    setState(() {
+                                      employeeClockStatus[empId] = !isClockedIn;
+                                    });
 
-                                  showTopMessage(context, "Clock In Successfully");
+                                    showTopMessage(
+                                      context,
+                                      isClockedIn
+                                          ? "Clock Out Successfully"
+                                          : "Clock In Successfully",
+                                    );
 
-                                  Future.delayed(const Duration(seconds: 1), () {
-                                    Navigator.pop(dialogContext);
-                                  });
-                                } else {
-                                  setState(() {
-                                    isClockedIn = false;
-                                  });
-
-                                  showTopMessage(context, "Clock Out Successfully");
-
-                                  Future.delayed(const Duration(seconds: 1), () {
-                                    Navigator.pop(dialogContext);
-                                  });
-                                }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFFA4C89A),
-                                elevation: 0,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(25),
+                                    Future.delayed(const Duration(seconds: 1), () {
+                                      Navigator.pop(dialogContext);
+                                    });
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFFA4C89A),
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(25),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    isClockedIn ? "Clock Out" : "Clock In",
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
                                 ),
                               ),
-                              child: Text(
-                                isClockedIn ? "Clock Out" : "Clock In",
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ),
+                            );
+                          },
                         ),
 
                         const SizedBox(height: 12),
@@ -1214,7 +1198,6 @@ class _CustomAppBarState extends State<CustomAppBar> {
                         GestureDetector(
                           onTap: () {
                             print("Hide Timeclock history");
-                            // Show/Hide history logic
                           },
                           child: Text(
                             "Hide Timeclock history",
@@ -1226,7 +1209,6 @@ class _CustomAppBarState extends State<CustomAppBar> {
                           ),
                         ),
                       ],
-
                     ],
                   ),
                 ),
@@ -1237,7 +1219,6 @@ class _CustomAppBarState extends State<CustomAppBar> {
       },
     );
   }
-
 }
 
 class EmployeeSearchDelegate extends SearchDelegate<String> {
@@ -1261,8 +1242,8 @@ class EmployeeSearchDelegate extends SearchDelegate<String> {
   @override
   Widget? buildLeading(BuildContext context) {
     return IconButton(
-        icon: const Icon(Icons.arrow_back),
-        onPressed: () => close(context, '')
+      icon: const Icon(Icons.arrow_back),
+      onPressed: () => close(context, ''),
     );
   }
 
@@ -1278,9 +1259,7 @@ class EmployeeSearchDelegate extends SearchDelegate<String> {
 
   Widget _buildEmployeeList(BuildContext context) {
     final filtered = employees
-        .where(
-          (e) => e.toLowerCase().contains(query.toLowerCase()),
-    )
+        .where((e) => e.toLowerCase().contains(query.toLowerCase()))
         .toList();
 
     return ListView.builder(
@@ -1296,12 +1275,10 @@ class EmployeeSearchDelegate extends SearchDelegate<String> {
     );
   }
 }
+
 class Employee {
   final int employeeId;
   final String employeeName;
 
-  Employee({
-    required this.employeeId,
-    required this.employeeName,
-  });
+  Employee({required this.employeeId, required this.employeeName});
 }
