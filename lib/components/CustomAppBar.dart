@@ -37,6 +37,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
   bool isTeeSheetMenuOpen = false;
   bool isProfileMenuOpen = false;
   bool isClockedIn = false;
+  bool showTimeClockHistory = false;
   Map<int, bool> employeeClockStatus = {};
   final TextEditingController employeeController = TextEditingController();
   final TextEditingController pinController = TextEditingController();
@@ -52,6 +53,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
   ];
   Employee? selectedEmployee;
   bool showTimeClockActions = false;
+  List<Map<String, String>> timeClockHistory = [];
 
   PopupMenuItem<String> buildCourseItem(String course) {
     final isSelected = selectedCourse == course;
@@ -1139,7 +1141,8 @@ class _CustomAppBarState extends State<CustomAppBar> {
                         Builder(
                           builder: (context) {
                             final empId = selectedEmployee!.employeeId;
-                            final isClockedIn = employeeClockStatus[empId] ?? false;
+                            final isClockedIn =
+                                employeeClockStatus[empId] ?? false;
 
                             return Center(
                               child: SizedBox(
@@ -1149,7 +1152,8 @@ class _CustomAppBarState extends State<CustomAppBar> {
                                   onPressed: () {
                                     if (pinController.text.trim().length < 4) {
                                       setDialogState(() {
-                                        pinError = "PIN must be at least 4 characters";
+                                        pinError =
+                                            "PIN must be at least 4 characters";
                                       });
                                       return;
                                     }
@@ -1158,8 +1162,49 @@ class _CustomAppBarState extends State<CustomAppBar> {
                                       pinError = null;
                                     });
 
+                                    final nowString = DateFormat(
+                                      'MM-dd-yyyy | hh:mm a',
+                                    ).format(DateTime.now());
+
                                     setState(() {
-                                      employeeClockStatus[empId] = !isClockedIn;
+                                      if (!isClockedIn) {
+                                        employeeClockStatus[empId] = true;
+
+                                        timeClockHistory.insert(0, {
+                                          "clockIn": nowString,
+                                          "clockOut": "-",
+                                          "totalHours": "-",
+                                        });
+                                      } else {
+                                        employeeClockStatus[empId] = false;
+
+                                        if (timeClockHistory.isNotEmpty) {
+                                          final clockInTime =
+                                              DateFormat(
+                                                'MM-dd-yyyy | hh:mm a',
+                                              ).parse(
+                                                timeClockHistory[0]["clockIn"]!,
+                                              );
+
+                                          final duration = DateTime.now()
+                                              .difference(clockInTime);
+
+                                          final hrs = duration.inHours
+                                              .toString()
+                                              .padLeft(2, '0');
+                                          final mins = (duration.inMinutes % 60)
+                                              .toString()
+                                              .padLeft(2, '0');
+                                          final secs = (duration.inSeconds % 60)
+                                              .toString()
+                                              .padLeft(2, '0');
+
+                                          timeClockHistory[0]["clockOut"] =
+                                              nowString;
+                                          timeClockHistory[0]["totalHours"] =
+                                              "$hrs:$mins:$secs";
+                                        }
+                                      }
                                     });
 
                                     showTopMessage(
@@ -1169,9 +1214,12 @@ class _CustomAppBarState extends State<CustomAppBar> {
                                           : "Clock In Successfully",
                                     );
 
-                                    Future.delayed(const Duration(seconds: 1), () {
-                                      Navigator.pop(dialogContext);
-                                    });
+                                    Future.delayed(
+                                      const Duration(seconds: 1),
+                                      () {
+                                        Navigator.pop(dialogContext);
+                                      },
+                                    );
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFFA4C89A),
@@ -1197,10 +1245,14 @@ class _CustomAppBarState extends State<CustomAppBar> {
 
                         GestureDetector(
                           onTap: () {
-                            print("Hide Timeclock history");
+                            setDialogState(() {
+                              showTimeClockHistory = !showTimeClockHistory;
+                            });
                           },
                           child: Text(
-                            "Hide Timeclock history",
+                            showTimeClockHistory
+                                ? "Hide Timeclock History"
+                                : "Show Timeclock History",
                             style: GoogleFonts.nunito(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -1208,6 +1260,72 @@ class _CustomAppBarState extends State<CustomAppBar> {
                             ),
                           ),
                         ),
+
+                        if (showTimeClockHistory) ...[
+                          const SizedBox(height: 16),
+
+                          Container(
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              border: Border.all(
+                                color: const Color(0xFFE5E7EB),
+                              ),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Column(
+                              children: [
+                                Container(
+                                  height: 46,
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFFF8F9FB),
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(8),
+                                      topRight: Radius.circular(8),
+                                    ),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      _historyHeader("Clock In"),
+                                      _historyHeader("Clock Out"),
+                                      _historyHeader(
+                                        "Total Hours",
+                                        isLast: true,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                ...List.generate(timeClockHistory.length, (
+                                  index,
+                                ) {
+                                  final item = timeClockHistory[index];
+
+                                  return Container(
+                                    height: 56,
+                                    decoration: const BoxDecoration(
+                                      border: Border(
+                                        top: BorderSide(
+                                          color: Color(0xFFE5E7EB),
+                                        ),
+                                      ),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        _historyCell(item["clockIn"] ?? ""),
+                                        _historyCell(item["clockOut"] ?? "-"),
+                                        _historyCell(
+                                          item["totalHours"] ?? "-",
+                                          isLast: true,
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }),
+                              ],
+                            ),
+                          ),
+                        ],
                       ],
                     ],
                   ),
@@ -1217,6 +1335,42 @@ class _CustomAppBarState extends State<CustomAppBar> {
           },
         );
       },
+    );
+  }
+
+  Widget _historyHeader(String title, {bool isLast = false}) {
+    return Expanded(
+      child: Container(
+        alignment: Alignment.centerLeft,
+        padding: const EdgeInsets.symmetric(horizontal: 14),
+        decoration: BoxDecoration(
+          border: isLast
+              ? null
+              : const Border(right: BorderSide(color: Color(0xFFE5E7EB))),
+        ),
+        child: Text(
+          title,
+          style: GoogleFonts.nunito(fontSize: 15, fontWeight: FontWeight.w700),
+        ),
+      ),
+    );
+  }
+
+  Widget _historyCell(String value, {bool isLast = false}) {
+    return Expanded(
+      child: Container(
+        alignment: Alignment.centerLeft,
+        padding: const EdgeInsets.symmetric(horizontal: 14),
+        decoration: BoxDecoration(
+          border: isLast
+              ? null
+              : const Border(right: BorderSide(color: Color(0xFFE5E7EB))),
+        ),
+        child: Text(
+          value,
+          style: GoogleFonts.nunito(fontSize: 14, color: Colors.black87),
+        ),
+      ),
     );
   }
 }

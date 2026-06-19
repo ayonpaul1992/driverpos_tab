@@ -36,6 +36,9 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
     {'icon': Icons.settings_outlined, 'label': 'Settings'},
   ];
 
+  // ── Handles tab navigation with a smooth fade transition ──
+  // Lives here (inside the State class) so it has access to
+  // `widget` and `context` automatically — no manual declaration needed.
   void _navigateTo(int index) {
     if (index == widget.selectedIndex) return;
 
@@ -45,30 +48,60 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
       case 0:
         screen = TransactionScreen(userId: '');
         break;
-
       case 1:
         screen = ProshopScreen(userId: '');
         break;
-
       case 2:
         screen = TeaSheet(userId: '');
         break;
-
       case 3:
         screen = CustomerScreen(userId: '');
         break;
-
       case 4:
         screen = SettingScreen(userId: '');
         break;
-
       default:
         screen = TeaSheet(userId: '');
     }
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => screen),
+    Navigator.of(context).pushReplacement(
+      PageRouteBuilder(
+        transitionDuration: const Duration(milliseconds: 350),
+        reverseTransitionDuration: const Duration(milliseconds: 350),
+        pageBuilder: (_, animation, secondaryAnimation) => screen,
+        transitionsBuilder: (
+            context,
+            animation,
+            secondaryAnimation,
+            child,
+            ) {
+          const begin = Offset(0.08, 0.0);
+          const end = Offset.zero;
+
+          final slideAnimation = Tween(
+            begin: begin,
+            end: end,
+          ).animate(
+            CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOutCubic,
+            ),
+          );
+
+          final fadeAnimation = CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeOut,
+          );
+
+          return FadeTransition(
+            opacity: fadeAnimation,
+            child: SlideTransition(
+              position: slideAnimation,
+              child: child,
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -87,10 +120,16 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
   @override
   Widget build(BuildContext context) {
     final double bottomPadding = MediaQuery.of(context).padding.bottom;
-    const double barHeight = 102.0;
-    const double circleRadius = 40.0; // radius of the floating circle
+
+    // ── Sizing tokens ──
+    const double barHeight = 68.0;
+    const double circleRadius = 28.0;
     const double notchMargin = 0;
-    const double circleElevation = 0; // how high circle floats above bar top
+    const double circleElevation = 0;
+    const double iconSize = 24.0;
+    const double activeIconSize = 28.0;
+    const double labelFontSize = 15;
+    const double activeLabelFontSize = 15;
 
     final double totalHeight =
         barHeight + circleElevation + circleRadius + bottomPadding;
@@ -131,7 +170,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
                 ),
               ),
 
-              // ── 2. Drop shadow behind the bar (drawn separately so notch shadow works) ──
+              // ── 2. Drop shadow behind the bar ──
               Positioned(
                 bottom: 0,
                 left: 0,
@@ -170,25 +209,25 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
                         child: isSelected
                             ? const SizedBox.shrink()
                             : Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    items[index]['icon'] as IconData,
-                                    size: 40,
-                                    color: Colors.white,
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Text(
-                                    items[index]['label'] as String,
-                                    textAlign: TextAlign.center,
-                                    style:  GoogleFonts.nunito(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              items[index]['icon'] as IconData,
+                              size: iconSize,
+                              color: Colors.white,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              items[index]['label'] as String,
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.nunito(
+                                fontSize: labelFontSize,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
                               ),
+                            ),
+                          ],
+                        ),
                       ),
                     );
                   }),
@@ -197,8 +236,8 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
 
               // ── 4. Floating active circle ──
               AnimatedPositioned(
-                duration: const Duration(milliseconds: 250),
-                curve: Curves.easeOut,
+                duration: const Duration(milliseconds: 400),
+                curve: Curves.easeInOutCubic,
                 bottom:
                 barHeight + bottomPadding + circleElevation - circleRadius,
                 left: activeCenter - circleRadius,
@@ -211,33 +250,52 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
                     }
                   },
                   child: Container(
-                    decoration: BoxDecoration(
+                    decoration:  BoxDecoration(
                       color: Color(0xFF799C74),
                       shape: BoxShape.circle,
                       border: Border.all(
                         color: const Color(0xFFD0E8CE),
                         width: 1,
                       ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF799C74).withOpacity(0.30),
+                          blurRadius: 20,
+                          spreadRadius: 2,
+                          offset: const Offset(0, 6),
+                        ),
+                      ],
                     ),
-                    child: Icon(
-                      items[widget.selectedIndex]['icon'] as IconData,
-                      size: 50,
-                      color:  Colors.white,
-                    ),
+                    child: TweenAnimationBuilder<double>(
+                      duration: const Duration(milliseconds: 350),
+                      tween: Tween(begin: 0.85, end: 1),
+                      curve: Curves.easeOutBack,
+                      builder: (context, value, child) {
+                        return Transform.scale(
+                          scale: value,
+                          child: child,
+                        );
+                      },
+                      child: Icon(
+                        items[widget.selectedIndex]['icon'] as IconData,
+                        size: activeIconSize,
+                        color: Colors.white,
+                      ),
+                    )
                   ),
                 ),
               ),
 
               // ── 5. Active label inside bar ──
               Positioned(
-                bottom: bottomPadding + 10,
+                bottom: bottomPadding + 8,
                 left: activeCenter - itemWidth / 2,
                 width: itemWidth,
                 child: Text(
                   items[widget.selectedIndex]['label'] as String,
                   textAlign: TextAlign.center,
-                  style:  GoogleFonts.nunito(
-                    fontSize: 24,
+                  style: GoogleFonts.nunito(
+                    fontSize: activeLabelFontSize,
                     fontWeight: FontWeight.w600,
                     color: Colors.white,
                   ),
@@ -266,42 +324,28 @@ class NotchedClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
     const double cornerRadius = 20.0;
-    const double notchSweepExtra = 18.0; // extra width around notch curve
+    const double notchSweepExtra = 10.0;
 
     final Path path = Path();
 
-    // Start top-left corner
     path.moveTo(cornerRadius, 0);
 
-    // Top edge going right until notch start
     final double notchLeft = activeCenter - notchRadius - notchSweepExtra;
     final double notchRight = activeCenter + notchRadius + notchSweepExtra;
 
     path.lineTo(notchLeft, 0);
 
-    // Arc downward for the notch (semicircle dip)
     path.arcToPoint(
       Offset(notchRight, 0),
       radius: Radius.circular(notchRadius + notchSweepExtra * 0.5),
       clockwise: false,
     );
 
-    // Continue to top-right
     path.lineTo(size.width - cornerRadius, 0);
-
-    // Top-right rounded corner
     path.quadraticBezierTo(size.width, 0, size.width, cornerRadius);
-
-    // Right edge down
     path.lineTo(size.width, size.height);
-
-    // Bottom edge
     path.lineTo(0, size.height);
-
-    // Left edge up
     path.lineTo(0, cornerRadius);
-
-    // Top-left rounded corner
     path.quadraticBezierTo(0, 0, cornerRadius, 0);
 
     path.close();
@@ -330,7 +374,6 @@ class NotchedShadowPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     // intentionally empty — shadow handled by circle widget itself
-    // Add custom shadow logic here if needed
   }
 
   @override
